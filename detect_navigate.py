@@ -46,7 +46,7 @@ ret, frame = cap.read()
 if ret:
     H, W = frame.shape[:2]  # Get the height and width of the frame
 
-out = cv2.VideoWriter('Results/output.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (W, H))
+out = cv2.VideoWriter('/content/drive/MyDrive/Results/output.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (W, H))
 # Process every 10th frame of the input video
 frame_count = 0
 while cap.isOpened():
@@ -155,76 +155,5 @@ cv2.destroyAllWindows()
 end = time.time()
 # print the difference between start and end time in milli. secs
 print("The time of execution of above program is :",(end-start) * 10**3, "ms")
-
-
-'''# Perform edge detection and line detection
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    #cv2.imshow("gray",gray)
-    blur = cv2.bilateralFilter(gray, 9, 40, 40)
-    edges = Auto_Canny(blur,0.33)# cv2.Canny(blur, 50, 100)
-    ######################################################## 
-    _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
-
-    edges = thresh+edges
-
-    cv2.imshow("edges",edges)
-    ###################################################
-    H, W = edges.shape
-    #EPSILON = 20
-    img_h = H - 1
-    img_w = W - 1
-
-    EdgeArray = []
-    for j in range(0, img_w, StepSize):
-        for i in range(img_h-5, 0, -1):
-            if edges.item(i, j) == 255:
-                EdgeArray.append((j, i))
-                break
-    chunks = np.array_split(EdgeArray, 3)
-    midpoint = (W//2, H) 
-    c = []
-    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)] # a list of RGB colors to use for each line
-    for chunk, color in zip(chunks, colors):
-        x_vals, y_vals = zip(*chunk)
-        avg_x = int(np.mean(x_vals))
-        avg_y = int(np.mean(y_vals))
-        c.append([avg_y, avg_x])
-
-        cv2.line(frame, midpoint, (avg_x, avg_y), color, 2) 
-
-
-    # Identify the longest line
-    lengths = np.linalg.norm(np.array(midpoint) - np.array(c), axis=1)
-    longest_line = np.argmax(lengths)
-
-    #print(lengths[longest_line])
-
-    # Add a minimum threshold for the longest line length
-    MIN_LENGTH_THRESHOLD = 50
-
-    if lengths[longest_line] < MIN_LENGTH_THRESHOLD:
-        direction = "avoid wall"
-        print("Avoid wall")
-    # Move forward, left, or right based on the longest line
-    if longest_line == 1:
-        direction = "forward"
-        print("Move forward")
-    elif longest_line == 0:
-        direction = "left"
-        print("Move left")
-    else:
-        direction = "right"
-        print("Move right")
-
-def Auto_Canny(image, sigma=0.33):
-    # compute the median of the single channel pixel intensities
-    v = np.median(image)
-    # apply automatic Canny edge detection using the computed median
-    lower = int(max(0, (1.0 - sigma) * v))
-    upper = int(min(255, (1.0 + sigma) * v))
-    edged = cv2.Canny(image, lower, upper)
-    # return the edged image
-    return edged
-'''
 
 
