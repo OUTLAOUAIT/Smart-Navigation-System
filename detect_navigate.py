@@ -136,7 +136,7 @@ while cap.isOpened():
 
         cv2.putText(frame, order, (W//2, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, RED, 2)
 
-        cv2.imshow("frame", frame) 
+        #cv2.imshow("frame", frame) 
         out.write(frame) # write the frame to the output video
 
     frame_count += 1
