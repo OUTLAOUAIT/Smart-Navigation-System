@@ -53,12 +53,13 @@ while cap.isOpened():
     ret, frame = cap.read()
     
     if not ret:
-        frame_copy = frame.copy()
         break
+        frame_copy = frame.copy()
+        
 
     # Only process every 10th frame
     if frame_count % subsampling_rate == 0:
-
+        print('Preprocess .....')
         pred, frame = CrosswalkTrafficLight(model,frame, device, stride)
         indices, boxes, class_ids  = Coco_detector(Model_path_weights, Model_path_cfg, class_idxs, frame)
         H, W = frame.shape[:2]
