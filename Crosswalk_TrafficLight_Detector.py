@@ -5,7 +5,7 @@ from my_utils.utils import letterbox, non_max_suppression, scale_coords
 
 def CrosswalkTrafficLight(model, img, device, stride):
 
-    img = cv2.resize(img, (1000,600))
+    #img = cv2.resize(img, (1000,600))
     img_input = letterbox(img, 640, stride=stride)[0]
     img_input = img_input.transpose((2, 0, 1))[::-1]
     img_input = np.ascontiguousarray(img_input)
