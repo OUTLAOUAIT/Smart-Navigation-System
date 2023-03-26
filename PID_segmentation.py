@@ -65,12 +65,92 @@ model = models_.pidnet.get_pred_model('pidnet-l', 19 if True else 11)
 model = load_pretrained(model, '/content/drive/MyDrive/PID/PIDNet_L_Cityscapes_test.pt').to(device)
 model.eval()
 
+
+import glob
+import argparse
+import cv2
+import os
+import numpy as np
+import _init_paths
+import models
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from google.colab.patches import cv2_imshow
+import torch
+import torchvision.transforms as transforms
+
+
+mean = [0.485, 0.456, 0.406]
+std = [0.229, 0.224, 0.225]
+
+color_map = [(128, 64,128),
+             (244, 35,232),
+             ( 70, 70, 70),
+             (102,102,156),
+             (190,153,153),
+             (153,153,153),
+             (250,170, 30),
+             (220,220,  0),
+             (107,142, 35),
+             (152,251,152),
+             ( 70,130,180),
+             (220, 20, 60),
+             (255,  0,  0),
+             (  0,  0,142),
+             (  0,  0, 70),
+             (  0, 60,100),
+             (  0, 80,100),
+             (  0,  0,230),
+             (119, 11, 32)]
+
+
+def input_transform(image):
+    image = image.astype(np.float32)[:, :, ::-1]
+    image = image / 255.0
+    image -= mean
+    image /= std
+    return image
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+def load_pretrained(model, pretrained): 
+    pretrained_dict = torch.load(pretrained, map_location=device)
+    if 'state_dict' in pretrained_dict:
+        pretrained_dict = pretrained_dict['state_dict']
+    model_dict = model.state_dict()
+    pretrained_dict = {k[6:]: v for k, v in pretrained_dict.items() if (k[6:] in model_dict and v.shape == model_dict[k[6:]].shape)}
+    '''msg = 'Loaded {} parameters!'.format(len(pretrained_dict))
+    print('Attention!!!')
+    print(msg)
+    print('Over!!!')'''
+    model_dict.update(pretrained_dict)
+    model.load_state_dict(model_dict, strict = False)
+    
+    return model
+
+model = models.pidnet.get_pred_model('pidnet-l', 19 if True else 11)
+model = load_pretrained(model, '/content/drive/MyDrive/PID/PIDNet_L_Cityscapes_test.pt').to(device)
+model.eval()
+
 def PID_Seg(image):
 
     StepSize = 5
     # Define the target size for resizing
     with torch.no_grad():
+        '''input_transform = transforms.Compose([
+            transforms.ToTensor(),
+            #transforms.Resize((1024, 2048)),
+            #transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.5, hue=0.1), 
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])])
+
+        sv_img = np.zeros_like(image).astype(np.uint8)
+        img = input_transform(image).unsqueeze(0).to(device)
+        pred = model(img)'''
+
+        #img = cv2.imread(img_name,cv2.IMREAD_COLOR)
         img = image
+        img2 = image.copy()
         sv_img = np.zeros_like(img).astype(np.uint8)
         img = input_transform(img)
         img = img.transpose((2, 0, 1)).copy()
@@ -91,34 +171,47 @@ def PID_Seg(image):
         colorized_bgr = np.array(colorized_rgb)[:, :, ::-1].copy() # Rearrange color channels
 
         seg = colorized_bgr.copy()
+        #print(type(seg))
         # Find the region with label == 1 (black)
         black_mask =(pred == 0) | (pred == 1)
         # Invert the mask so that black regions are white and other regions are black
         white_mask = ~black_mask
-        
+        #colorized_bgr = img2
         # Draw the white regions as black and black regions as white
         colorized_bgr[white_mask] = (255, 255, 255)
         colorized_bgr[black_mask] = (0, 0, 0)
-
         gray = cv2.cvtColor(colorized_bgr, cv2.COLOR_BGR2GRAY)
         # Apply a median blur to reduce noise
         gray = cv2.medianBlur(gray, 5)
         # Apply the Canny edge detection algorithm with lower and upper threshold values
-        edges_ = cv2.Canny(gray, 50, 150)
-        # Find contours of the edges
-        contours, _ = cv2.findContours(edges_, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #edges_ = cv2.Canny(gray, 50, 150)
+        contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         # Filter contours by length
         min_length = 200
         filtered_contours = [c for c in contours if cv2.arcLength(c, True) > min_length]
+        # Create a black mask with the same size as the original image
+        mask = np.zeros_like(gray)
+        # Draw the filtered contours onto the mask in white
+        cv2.drawContours(mask, filtered_contours, -1, 255, -1)
+        # Use the mask to extract the filtered regions from the original colorized BGR image
+        result = cv2.bitwise_and(colorized_bgr, colorized_bgr, mask=mask)
+        #cv2_imshow(result)
+        # Find contours of the edges
+        #contours, _ = cv2.findContours(edges_, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Filter contours by length
+        #min_length = 200
+        #filtered_contours = [c for c in contours if cv2.arcLength(c, True) > min_length]
         # Create a new binary image with just the filtered edges
-        filtered_edges = np.zeros_like(edges_)
-        cv2.drawContours(filtered_edges, filtered_contours, -1, 255, thickness=1)
-        edges = filtered_edges
+        #filtered_edges = np.zeros_like(edges_)
+        #cv2.drawContours(filtered_edges, filtered_contours, -1, 255, thickness=1)
+        #edges = filtered_edges
+        edges = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+        
         ###################################
 
-        _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
+        #_, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
 
-        edges = thresh+edges
+        #edges = thresh+edges
 
         #cv2_imshow(edges)
 
@@ -178,5 +271,7 @@ def PID_Seg(image):
             direction = "right"
 
         return image, direction, seg
+
+
 
 
