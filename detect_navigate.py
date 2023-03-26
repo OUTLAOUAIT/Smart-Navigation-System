@@ -44,6 +44,7 @@ StepSize = 5
 
 ret, frame = cap.read()
 if ret:
+    frame = cv2.resize(frame,(1280,720))
     H, W = frame.shape[:2]  # Get the height and width of the frame
 
 out = cv2.VideoWriter('/content/drive/MyDrive/Results/output.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (W, H))
@@ -56,6 +57,7 @@ while cap.isOpened():
         break
         frame_copy = frame.copy()
         
+    frame = cv2.resize(frame,(1280,720))
 
     # Only process every 10th frame
     if frame_count % subsampling_rate == 0:
