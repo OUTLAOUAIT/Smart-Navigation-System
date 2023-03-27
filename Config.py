@@ -114,6 +114,6 @@ def ROI(W,H):
 	return P1_ROI, P2_ROI
 
 def Cam_man_pose(W,H):
-	P1_Cam = (W//2 - 30, H-30)
-	P2_Cam = (W//2 + 30, H)
+	P1_Cam = (W//2 - 100, H-70)
+	P2_Cam = (W//2 + 100, H)
 	return P1_Cam, P2_Cam
