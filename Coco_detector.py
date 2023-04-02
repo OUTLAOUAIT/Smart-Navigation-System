@@ -8,7 +8,8 @@ def Coco_detector(Model_path_weights, Model_path_cfg, class_idxs, frame):
     
     net = cv2.dnn.readNet(Model_path_weights,Model_path_cfg)
     # Prepare the input to the model by converting it to a blob
-    blob = cv2.dnn.blobFromImage(frame, 1/255.0, (416, 416), swapRB=True, crop=False)
+    # AS SIZE WE CAN TRY ALSO (320,320)
+    blob = cv2.dnn.blobFromImage(frame, 1/255.0, (160, 160), swapRB=True, crop=False)
     # Run the forward pass of the model
     net.setInput(blob)
     layer_names = net.getLayerNames()
