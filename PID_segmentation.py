@@ -46,7 +46,8 @@ def input_transform(image):
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def load_pretrained(model, pretrained): 
-    pretrained_dict = torch.load(pretrained, map_location=device)
+    #pretrained_dict = torch.load(pretrained, map_location=device)
+    pretrained_dict = torch.load(pretrained, map_location='cpu')
     if 'state_dict' in pretrained_dict:
         pretrained_dict = pretrained_dict['state_dict']
     model_dict = model.state_dict()
