@@ -552,10 +552,10 @@ def feature_distribution_matching(source_path: str, reference_path: str,
                                'output3.png')
 '''
 
-image_source = cv2.imread("data/munich_1.png")
+'''image_source = cv2.imread("data/munich_1.png")
 image_reference = cv2.imread("data/munich_2.png")
 
 
 feature_distribution_matching(image_source,
                               image_reference,
-                               'output5.png')
+                               'output5.png')'''
