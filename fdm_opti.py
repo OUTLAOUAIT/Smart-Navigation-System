@@ -479,12 +479,12 @@ def write_image(image: np.ndarray, path: str) -> None:
             output_image = image[:, :, 0]
         else:
             output_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        if not cv2.imwrite(path, output_image):
+        '''if not cv2.imwrite(path, output_image):
             raise ValueError(
-                f'Output directory {os.path.dirname(path)} does not exist')
-    else:
+                f'Output directory {os.path.dirname(path)} does not exist')'''
+    '''else:
         raise TypeError(
-            f'Cannot write image with type {image.dtype}')
+            f'Cannot write image with type {image.dtype}')'''
 
 """This module provides a function to perform the matching operation"""
 
@@ -507,7 +507,7 @@ def run(operation_type: str, params: Params) -> None:
     result = op_ctx(source, reference)
 
     #return result
-    write_image(result, params.result_path)
+    return write_image(result, params.result_path)
 
 
 
@@ -545,7 +545,7 @@ def feature_distribution_matching(source_path: str, reference_path: str,
     fdm = run(FDM, params)
     #fdm._apply(params)
 
-    # Plot result
+    #Plot result
   
 '''feature_distribution_matching('data/munich_1.png',
                                'data/munich_2.png',
