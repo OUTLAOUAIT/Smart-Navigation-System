@@ -543,6 +543,7 @@ def feature_distribution_matching(source_path: str, reference_path: str,
 
     # Apply feature distribution matching
     fdm = run(FDM, params)
+    return fdm
     #fdm._apply(params)
 
     #Plot result
