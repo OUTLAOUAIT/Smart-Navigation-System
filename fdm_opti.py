@@ -480,7 +480,7 @@ def write_image(image: np.ndarray, path: str) -> None:
         else:
             output_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     return output_image
-        '''if not cv2.imwrite(path, output_image):
+    '''if not cv2.imwrite(path, output_image):
             raise ValueError(
                 f'Output directory {os.path.dirname(path)} does not exist')'''
     '''else:
